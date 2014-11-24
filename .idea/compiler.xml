@@ -25,5 +25,8 @@
         <module name="testAccMini" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="testAccMini" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>
