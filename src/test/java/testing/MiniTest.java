@@ -1,7 +1,5 @@
 package testing;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
@@ -10,34 +8,41 @@ import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.*;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class MiniTest extends MiniTester {
-    public MiniTest(String testName) {
-        super(testName);
-    }
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-    public static Test suite()
-    {
-        return new TestSuite( MiniTest.class );
-    }
+public class MiniTest extends MiniInstance {
 
+
+//    public static Test suite()
+//    {
+//        return new TestSuite( MiniTest.class );
+//    }
+
+    @ClassRule
+    public static IAccumuloTester tester = new MiniInstance();
+
+    @Test
     public void testOne()
     {
         System.out.println("test that does nothing");
-        System.out.println(super.instance.getInstanceName());
         assertTrue(true);
     }
 
 
-
+    @Test
     public void testInsertScan() throws Exception {
         final String tableName = "testTable";
-        Connector conn = super.instance.getConnector(super.USER, new PasswordToken(super.PASSWORD));
+        Connector conn = tester.getInstance().getConnector(tester.getUser(), new PasswordToken(tester.getPassword()));
         // create tableName
         if (!conn.tableOperations().exists(tableName))
             conn.tableOperations().create(tableName);

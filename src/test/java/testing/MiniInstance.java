@@ -4,8 +4,12 @@ import junit.framework.TestCase;
 import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
+import org.junit.rules.ExternalResource;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
 
@@ -13,55 +17,46 @@ import java.nio.file.attribute.FileAttribute;
  * Subclasses should implement "testXXX" methods that use a MiniAccumuloCluster
  * and a static suite() method that returns its own class object.
  */
-public abstract class MiniTester
-    extends TestCase
+public class MiniInstance extends ExternalResource implements IAccumuloTester
 {
     /* Fixture State */
     private File tempDir;
     private MiniAccumuloCluster miniaccumulo;
-    protected Instance instance;
-    public static final String USER = "root";
-    public static final String PASSWORD = "password";
+    private Instance instance;
+    private static final String USER = "root";
+    private static final String PASSWORD = "password";
 
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public MiniTester(String testName)
-    {
-        super( testName );
+    public String getUser() {
+        return USER;
     }
 
-    /** Runs before every test */
-    public void setUp() throws Exception {
-        super.setUp();
+    public String getPassword() {
+        return PASSWORD;
+    }
+
+    public Instance getInstance() {
+        return instance;
+    }
+
+    @Override
+    protected void before() throws Throwable {
         tempDir = Files.createTempDirectory("tempMini",new FileAttribute<?>[] {}).toFile();
         miniaccumulo = new MiniAccumuloCluster(tempDir, PASSWORD);
         miniaccumulo.start();
         instance = new ZooKeeperInstance(miniaccumulo.getInstanceName(), miniaccumulo.getZooKeepers());
-        System.out.println("setUp ok - instance: "+instance.getInstanceName());
+        System.out.println("setUp ok - instance: " + instance.getInstanceName());
     }
 
-    /** Runs after every test */
-    public void tearDown() throws Exception {
-        super.tearDown();
+    @Override
+    protected void after() {
         instance = null;
-        miniaccumulo.stop();
+        try {
+            miniaccumulo.stop();
+        } catch (IOException | InterruptedException e) {
+            System.err.print("Error stopping MiniAccumuloCluster: ");
+            e.printStackTrace();
+        }
         tempDir.delete();
         System.out.println("tearDown ok - instance destroyed");
     }
-
-    //protected String instanceName() {}
-
-    /*
-     * @return the suite of tests being tested
-     */
-    /*public static Test suite()
-    {
-        return new TestSuite( MiniTester.class );
-    }*/
-
-
-
 }
