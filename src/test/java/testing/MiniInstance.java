@@ -14,8 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
 
 /**
- * Subclasses should implement "testXXX" methods that use a MiniAccumuloCluster
- * and a static suite() method that returns its own class object.
+ * Provides a MiniAccumuloCluster for use in testing.
  */
 public class MiniInstance extends ExternalResource implements IAccumuloTester
 {

@@ -20,6 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Example tests.
+ */
 public class MiniTest extends MiniInstance {
 
 
@@ -28,13 +31,14 @@ public class MiniTest extends MiniInstance {
 //        return new TestSuite( MiniTest.class );
 //    }
 
+    /** This is setup once for the entire class. */
     @ClassRule
     public static IAccumuloTester tester = new MiniInstance();
 
     @Test
     public void testOne()
     {
-        System.out.println("test that does nothing");
+        System.out.println("name of instance: "+tester.getInstance().getInstanceName());
         assertTrue(true);
     }
 

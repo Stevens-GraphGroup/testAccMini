@@ -1,4 +1,4 @@
-Template project to test on a MiniAccumuloCluster.
+Template project to test code that uses Accumulo.
 
 [![Build Status](https://travis-ci.org/Stevens-GraphGroup/testAccMini.svg)](https://travis-ci.org/Stevens-GraphGroup/testAccMini)
 
