@@ -1,5 +1,6 @@
 package testing;
 
+import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
 import org.junit.rules.TestRule;
 
@@ -9,10 +10,6 @@ import org.junit.rules.TestRule;
  */
 public interface IAccumuloTester extends TestRule {
 
-    public String getUser();
-
-    public String getPassword();
-
-    public Instance getInstance();
+    public Connector getConnector();
 
 }

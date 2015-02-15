@@ -4,10 +4,11 @@ import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Scanner;
-import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.*;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -23,30 +24,17 @@ import static org.junit.Assert.assertTrue;
 /**
  * Example tests.
  */
-public class MiniTest extends MiniInstance {
-
-
-//    public static Test suite()
-//    {
-//        return new TestSuite( MiniTest.class );
-//    }
+public class ATest extends MiniAccumuloTester {
+    private static final Logger log = LogManager.getLogger(ATest.class);
 
     /** This is setup once for the entire class. */
     @ClassRule
-    public static IAccumuloTester tester = new MiniInstance();
-
-    @Test
-    public void testOne()
-    {
-        System.out.println("name of instance: "+tester.getInstance().getInstanceName());
-        assertTrue(true);
-    }
-
+    public static IAccumuloTester tester = ACCUMULO_TEST_CONFIG.AccumuloTester;
 
     @Test
     public void testInsertScan() throws Exception {
-        final String tableName = "testTable";
-        Connector conn = tester.getInstance().getConnector(tester.getUser(), new PasswordToken(tester.getPassword()));
+        final String tableName = "test_"+ATest.class.getSimpleName();
+        Connector conn = tester.getConnector();
         // create tableName
         if (!conn.tableOperations().exists(tableName))
             conn.tableOperations().create(tableName);
@@ -55,7 +43,6 @@ public class MiniTest extends MiniInstance {
         SortedSet<Text> splitset = new TreeSet<Text>();
         splitset.add(new Text("f"));
         conn.tableOperations().addSplits(tableName, splitset);
-
 
         // write some values to tableName
         BatchWriterConfig config = new BatchWriterConfig();
@@ -77,7 +64,7 @@ public class MiniTest extends MiniInstance {
         Key startKey = new Key(new Text("d"), cf, cq);
         Range rng = new Range(startKey,null,true,false,false,true);
         scan.setRange(rng);// (new Key("d"));
-        System.out.println(tableName+" table:");
+        log.debug(tableName+" table:");
         Iterator<Map.Entry<Key, Value>> iterator = scan.iterator();
 
         Key k2 = new Key(new Text("ddd"), cf, cq);
@@ -90,9 +77,12 @@ public class MiniTest extends MiniInstance {
         assertEquals(v,r2.getValue());
         assertFalse(iterator.hasNext());
 
-//        for (Map.Entry<Key, Value> kv : scan) {
-//            System.out.println(kv);
-//        }
+        for (Map.Entry<Key, Value> kv : scan) {
+            log.debug(kv);
+        }
+
+        // delete test data
+        conn.tableOperations().delete(tableName);
 
     }
 }
