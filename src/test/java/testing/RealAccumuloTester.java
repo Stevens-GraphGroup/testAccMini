@@ -2,6 +2,7 @@ package testing;
 
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.security.tokens.AuthenticationToken;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.rules.ExternalResource;
@@ -11,12 +12,12 @@ public class RealAccumuloTester extends ExternalResource implements IAccumuloTes
 
     private ClientConfiguration cc;
     private String username = "root";
-    private AuthenticationToken auth;
+    private PasswordToken auth;
 
     private Instance instance;
 
     public RealAccumuloTester(String instanceName, String zookeeperHost, int timeout,
-                              String username, AuthenticationToken auth) {
+                              String username, PasswordToken auth) {
         cc = ClientConfiguration.loadDefault().withInstance(instanceName).withZkHosts(zookeeperHost).withZkTimeout(timeout);
         this.username = username;
         this.auth = auth;
@@ -28,10 +29,20 @@ public class RealAccumuloTester extends ExternalResource implements IAccumuloTes
         try {
             c = instance.getConnector(username, auth);
         } catch (AccumuloException | AccumuloSecurityException e) {
-            log.error("failed to connect to MiniAccumulo instance",e);
+            log.error("failed to connect to Accumulo instance "+instance.getInstanceName(),e);
             throw new RuntimeException(e);
         }
         return c;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public PasswordToken getPassword() {
+        return auth;
     }
 
     @Override
